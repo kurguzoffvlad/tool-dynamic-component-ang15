@@ -10,21 +10,41 @@ export interface CreateOptions {
 /**
  * Сервис динамического создания компонентов Angular 15+.
  *
- * Зачем: Angular не даёт «вставить» компонент в обычный DOM-узел —
- * для этого нужен ViewContainerRef (место в шаблоне, обычно через
- * директиву на <ng-container>). Сервис инкапсулирует рутину:
+ * ─── Как получить ViewContainerRef ────────────────────────────────
+ * В шаблон ставится <ng-container> с кастомной директивой-якорем:
  *
+ *     <ng-container dynSlot></ng-container>
+ *
+ * Директива в конструкторе получает ViewContainerRef:
+ *
+ *     @Directive({ selector: '[dynSlot]' })
+ *     export class DynamicSlotDirective {
+ *       constructor(public vcr: ViewContainerRef) {}
+ *     }
+ *
+ * Через @ViewChild(DynamicSlotDirective) в компоненте-хозяине
+ * достаём этот vcr и передаём в create(component, vcr, opts).
+ * <ng-container> не создаёт DOM-узел — только место в шаблоне.
+ *
+ * ─── Зачем нужен именно ViewContainerRef ─────────────────────────
+ * Angular не даёт «вставить» компонент в обычный DOM-узел:
+ * createComponent() есть ТОЛЬКО у ViewContainerRef. DOM-элемент
+ * умеет лишь держать разметку (appendChild и т.п.), но не управляет
+ * views и жизненным циклом компонентов.
+ *
+ * ─── Что инкапсулирует сервис ────────────────────────────────────
  *   • createComponent() + setInput() для inputs (корректно с OnPush/ngOnChanges);
  *   • подписка на outputs с авто-отпиской при destroy (без утечек);
  *   • учёт созданных компонентов в WeakMap<ViewContainerRef, ComponentRef[]>,
  *     чтобы уметь точечно удалять (remove) или чистить всё (clear);
  *   • WeakMap => при уничтожении контейнера записи собираются GC сами.
  *
- * Жизненный цикл: destroy() у ComponentRef корректно триггерит ngOnDestroy
- * и снимает подписки — в отличие от простого удаления DOM-узла.
+ * ─── Жизненный цикл ──────────────────────────────────────────────
+ * destroy() у ComponentRef корректно триггерит ngOnDestroy и снимает
+ * подписки — в отличие от простого удаления DOM-узла.
  *
  * Ключевая идея: ViewContainerRef — «прораб», управляющий жизнью views;
- * DOM-элемент — лишь «полка» для разметки и createComponent не умеет.
+ * DOM-элемент — лишь «полка» для разметки, createComponent не умеет.
  */
 @Injectable({ providedIn: 'root' })
 export class ToolDynamicComponentAng15Service {
