@@ -1,16 +1,13 @@
 import { NgModule } from '@angular/core';
-import { ToolDynamicComponentAng15Component } from './tool-dynamic-component-ang15.component';
+import { DynamicSlotDirective } from './dynamic-slot.directive';
 
-
-
+/**
+ * Импортируйте этот модуль (или DynamicSlotDirective напрямую),
+ * чтобы использовать директиву dynSlot в шаблонах.
+ * DynamicService доступен глобально (providedIn: 'root').
+ */
 @NgModule({
-  declarations: [
-    ToolDynamicComponentAng15Component
-  ],
-  imports: [
-  ],
-  exports: [
-    ToolDynamicComponentAng15Component
-  ]
+	imports: [DynamicSlotDirective],
+	exports: [DynamicSlotDirective],
 })
 export class ToolDynamicComponentAng15Module { }
