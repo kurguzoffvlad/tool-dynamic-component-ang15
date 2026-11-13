@@ -8,8 +8,23 @@ export interface CreateOptions {
 }
 
 /**
- * Простейший сервис динамического создания компонентов.
- * Ключ — ViewContainerRef (место в шаблоне), значение — созданные компоненты.
+ * Сервис динамического создания компонентов Angular 15+.
+ *
+ * Зачем: Angular не даёт «вставить» компонент в обычный DOM-узел —
+ * для этого нужен ViewContainerRef (место в шаблоне, обычно через
+ * директиву на <ng-container>). Сервис инкапсулирует рутину:
+ *
+ *   • createComponent() + setInput() для inputs (корректно с OnPush/ngOnChanges);
+ *   • подписка на outputs с авто-отпиской при destroy (без утечек);
+ *   • учёт созданных компонентов в WeakMap<ViewContainerRef, ComponentRef[]>,
+ *     чтобы уметь точечно удалять (remove) или чистить всё (clear);
+ *   • WeakMap => при уничтожении контейнера записи собираются GC сами.
+ *
+ * Жизненный цикл: destroy() у ComponentRef корректно триггерит ngOnDestroy
+ * и снимает подписки — в отличие от простого удаления DOM-узла.
+ *
+ * Ключевая идея: ViewContainerRef — «прораб», управляющий жизнью views;
+ * DOM-элемент — лишь «полка» для разметки и createComponent не умеет.
  */
 @Injectable({ providedIn: 'root' })
 export class ToolDynamicComponentAng15Service {
