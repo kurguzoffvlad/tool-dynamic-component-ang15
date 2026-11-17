@@ -1,5 +1,7 @@
 # tool-dynamic-component-ang15
 
+## Использование в https://github.com/kurguzoffvlad/tool-libs-ang15
+
 Небольшая библиотека для **динамического создания компонентов** в Angular 15+.
 Даёт простой API поверх `ViewContainerRef.createComponent()`: установка `@Input`,
 подписка на `@Output` с автоматической отпиской, управление созданными
